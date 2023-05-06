@@ -3,22 +3,67 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Move : MonoBehaviour
-{
+{ 
     public int myInt;
+    public float speed = 1.0f;
+    public float jumpStrength = 10.0f;
+    public float rotationSpeed = 5.0f;
     
-    // Start is called before the first frame update
+    private Rigidbody rb;
+    private Vector2 lastMousePosition = new Vector2(0.0f, 0.0f);
+
+    //Start is called before the first frame update
     void Start()
-    {
+    { 
         myInt = 0;
+
+        rb = gameObject.GetComponent<Rigidbody>();
+
+        lastMousePosition = Input.mousePosition;
     }
 
-    // Update is called once per frame
-    void Update()
+    void RotateCamera()
     {
-        myInt = myInt + 1; 
-        Debug.Log(myInt);
+        Vector2 currentMousePosition = Input.mousePosition;
+        Vector2 mouseDistance = currentMousePosition - lastMousePosition;
 
-        gameObject.transform.Translate(Vector3.forward * Time.deltaTime);
+        Vector3 cameraRotation = new Vector3 (0.0f, rotationSpeed * mouseDistance.x * Time.deltaTime, 0.0f);
+        transform.Rotate(cameraRotation);
+
+        lastMousePosition = currentMousePosition;
+    }
+    // Update is called once per frame
+    void Update() 
+        {
+            RotateCamera();
+            
+            Vector3 movDir = new Vector3(0.0f, 0.0f, 0.0f);
+
+             if (Input.GetKey(KeyCode.W))
+            {
+                 movDir = transform.forward;
+            }
+        else if (Input.GetKey(KeyCode.S))
+            {
+            movDir = -transform.forward;
+            }
+        else if (Input.GetKey(KeyCode.A))  
+            {
+            movDir = -transform.right;
+            }
+        else if (Input.GetKey(KeyCode.D))  
+            {
+            movDir = transform.right;
+            }
+
+        gameObject.transform.Translate(speed * movDir * Time.deltaTime);
+
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+
+        
+        Vector3 jumpForce = new Vector3(0.0f, jumpStrength, 0.0f);
+        rb.AddForce(jumpForce, ForceMode.Impulse);
+        }
     }
 }
-
